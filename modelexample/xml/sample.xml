@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://www.diagrams.editor.org/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.diagrams.editor.org/schema ../xsd/schema.xsd ">
+  <entity fullyQualifiedName="Entity1" >
+    <Coordinates x="20" y="20"/>
+    <icon>icon</icon>
+    <ColumnGroup name="@entityBase">
+      <Column name="abc" />
+       <Column name="def" />
+    </ColumnGroup>
+   <join joinName="join1" parentEntitisColumn="abc" xsi:type="ColumnTitleJoin" targetEntityFqn="package1/pacake2/Entity2"/>
+  </entity>
+  <entity fullyQualifiedName="package1/pacake2/Entity2" >
+    <Coordinates x="200" y="30"/>
+    <icon>icon</icon>
+    <ColumnGroup name="group1">
+      <Column name="group1:abc" />
+       <Column name="group1:def" />
+    </ColumnGroup>
+    <ColumnGroup name="group2">
+      <Column name="abc" />
+       <Column name="def" />
+    </ColumnGroup>
+  
+  </entity>
+</model>

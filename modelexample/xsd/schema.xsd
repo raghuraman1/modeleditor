@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.diagrams.editor.org/schema" xmlns:tns="http://www.diagrams.editor.org/schema" elementFormDefault="qualified">
+
+    <element name="model" type="tns:model"></element>
+    
+    <complexType name="model">
+    	<sequence>
+    		<element name="entity" type="tns:Entity" minOccurs="0" maxOccurs="unbounded"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Entity">
+    	<sequence>
+    		<element name="Coordinates" type="tns:Coordinates"
+    			minOccurs="0" maxOccurs="1">
+    		</element>
+    		<element name="icon" type="string" minOccurs="0"
+    			maxOccurs="unbounded">
+    		</element>
+    		<element name="ColumnGroup" type="tns:ColumnGroup"
+    			minOccurs="1" maxOccurs="unbounded">
+    		</element>
+    		<element name="join" type="tns:BaseJoin" minOccurs="0" maxOccurs="unbounded"></element>
+    	</sequence>
+    	<attribute name="fullyQualifiedName" type="string"
+    		use="required">
+    	</attribute>
+    	<attribute name="visibility" type="string" use="optional"></attribute>
+    </complexType>
+
+    <complexType name="Coordinates">
+    	<attribute name="x" type="int" use="required"></attribute>
+    	<attribute name="y" type="int" use="required"></attribute>
+    </complexType>
+
+    <complexType name="ColumnGroup">
+    	<sequence>
+    		<element name="Column" type="tns:Column" minOccurs="1"
+    			maxOccurs="unbounded">
+    		</element>
+    	</sequence>
+    	<attribute name="name" type="string" use="required"></attribute>
+    </complexType>
+    
+    <complexType name="Column">
+    	<sequence>
+    		<element name="icon" type="string" minOccurs="0" maxOccurs="unbounded"></element>
+    	</sequence>
+    	<attribute name="name" type="string" use="required"></attribute>
+    	<attribute name="type" type="string" use="optional"></attribute>
+    	<attribute name="visibility" type="string" use="optional"></attribute>
+    </complexType>
+
+    <complexType name="BaseJoin">
+    	<attribute name="howMany" type="int" default="1"></attribute>
+    	<attribute name="targetEntityFqn" type="string"
+    		use="required">
+    	</attribute>
+    	<attribute name="arrowHead" default="None">
+    		<simpleType>
+    			<restriction base="string">
+    				<enumeration value="None"></enumeration>
+    				<enumeration value="Empty"></enumeration>
+    				<enumeration value="Solid"></enumeration>
+    				<enumeration value="EmptyDiamond"></enumeration>
+    				<enumeration value="SolidDiamond"></enumeration>
+    			</restriction>
+    		</simpleType>
+    	</attribute>
+    	<attribute name="lineType" default="Solid">
+    		<simpleType>
+    			<restriction base="string">
+    				<enumeration value="Solid"></enumeration>
+    				<enumeration value="Dashed"></enumeration>
+    			</restriction>
+    		</simpleType>
+    	</attribute>
+    	<attribute name="joinName" type="string" use="optional"></attribute>
+    </complexType>
+
+    <complexType name="ColumnColumnJoin">
+    	<complexContent>
+    		<extension base="tns:BaseJoin">
+    			<attribute name="parentEntitisColumn" type="string"
+    				use="required">
+    			</attribute>
+    			<attribute name="targetEntitisColumn" type="string" use="required"></attribute>
+    		</extension>
+    	</complexContent>
+    </complexType>
+    
+     <complexType name="TitleColumnJoin">
+    	<complexContent>
+    		<extension base="tns:BaseJoin">
+    			
+    			<attribute name="targetEntitisColumn" type="string" use="required"></attribute>
+    		</extension>
+    	</complexContent>
+    </complexType>
+    
+     <complexType name="ColumnTitleJoin">
+    	<complexContent>
+    		<extension base="tns:BaseJoin">
+    			<attribute name="parentEntitisColumn" type="string"
+    				use="required">
+    			</attribute>
+    		
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+     <complexType name="GroupGroupJoin">
+     	<complexContent>
+     		<extension base="tns:BaseJoin">
+     			<attribute name="parentEntitisColumnGroup"
+     				type="string" use="required">
+     			</attribute>
+
+     			<attribute name="targetEntitisColumnGroup"
+     				type="string" use="required">
+     			</attribute>
+
+     		</extension>
+     	</complexContent>
+     </complexType>
+</schema>
