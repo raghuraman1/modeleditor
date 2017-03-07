@@ -1,2 +1,2 @@
 # modeleditor
-A simple model editor project
+A simple model editor project.
