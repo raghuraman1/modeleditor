@@ -13,7 +13,7 @@ public class LoadModel {
 	public static void main(String[] args) throws JAXBException, SAXException, IOException 
 	{
 		
-		new ModelLoader().buildAndRenderModel(new File("xml/sample.xml"), new File("output/sample.png"), new File("xsd"));
+		new ModelLoader().buildAndRenderModel(new File("xml/sample.xml"), null, new File("output/sample.png"), new File("xsd"));
 		
 	}
 

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -21,6 +22,7 @@ import org.xml.sax.SAXException;
 import editor.model.ColumnGroupVo;
 import editor.model.ColumnVo;
 import editor.model.EntityVo;
+import editor.model.ModelException;
 import editor.model.ModelVo;
 import editor.model.join.ArrowHead;
 import editor.model.join.BaseJoinVo;
@@ -42,15 +44,15 @@ import editor.model.xsd.jaxb.Model;
 import editor.model.xsd.jaxb.TitleColumnJoin;
 
 public class ModelLoader {
-	public  void buildAndRenderModel(File modelFile, File target,  File extractXsdToDirectory) throws SAXException, JAXBException, IOException {
+	public  void buildAndRenderModel(File modelFile, File modelCoordsFile, File target,  File extractXsdToDirectory) throws SAXException, JAXBException, IOException {
 		ModelLoader loadJaxb = new ModelLoader();
-		ModelVo modelVo = loadJaxb.buildModel(modelFile, extractXsdToDirectory);
+		ModelVo modelVo = loadJaxb.buildModel(modelFile, modelCoordsFile, extractXsdToDirectory);
 		new ModelRenderer().renderToFile(modelVo, target);;
 	}
 	
-	public  BufferedImage buildAndRenderModel(InputStream fileInputStream,  File extractXsdToDirectory) throws SAXException, JAXBException, IOException {
+	public  BufferedImage buildAndRenderModel(InputStream fileInputStream, InputStream coordsFileInputStream, File extractXsdToDirectory) throws SAXException, JAXBException, IOException {
 		ModelLoader loadJaxb = new ModelLoader();
-		ModelVo modelVo = loadJaxb.buildModel(fileInputStream, extractXsdToDirectory);
+		ModelVo modelVo = loadJaxb.buildModel(fileInputStream, coordsFileInputStream, extractXsdToDirectory);
 		return new ModelRenderer().render(modelVo);
 	}
 	
@@ -60,16 +62,21 @@ public class ModelLoader {
 	
 
 
-	public  ModelVo buildModel(File file, File extractXsdToDirectory) throws JAXBException, SAXException, IOException {
+	public  ModelVo buildModel(File file, File modelCoordsFile,File extractXsdToDirectory) throws JAXBException, SAXException, IOException {
 		 ModelVo modelVo=null;
-		 try( FileInputStream fis= new FileInputStream(file);)
+		 try( FileInputStream fis= new FileInputStream(file);FileInputStream coordsFis= modelCoordsFile!=null?new FileInputStream(modelCoordsFile):null;)
 		{
-			modelVo=buildModel(fis, extractXsdToDirectory);
+			modelVo=buildModel(fis, coordsFis, extractXsdToDirectory);
 		}
 		 return modelVo;
 	 }
-	public  ModelVo buildModel(InputStream fileInputStream, File extractXsdToDirectory) throws JAXBException, SAXException, IOException {
-		
+	public  ModelVo buildModel(InputStream fileInputStream, InputStream coordsFileInputStream, File extractXsdToDirectory) throws JAXBException, SAXException, IOException {
+		Properties cordProps=null;
+		if(coordsFileInputStream!=null)
+		{
+			cordProps=new Properties();
+			cordProps.load(coordsFileInputStream);
+		}
 		String packageName = Model.class.getPackage().getName();
 		JAXBContext jc = JAXBContext.newInstance( packageName );
 		Unmarshaller u = jc.createUnmarshaller();
@@ -101,8 +108,24 @@ public class ModelLoader {
 			Coordinates coordinates = entity.getCoordinates();
 			if(coordinates!=null)
 			{
-				entityVo.setX(coordinates.getX());
-				entityVo.setY(coordinates.getY());
+				try
+				{
+				boolean set=setCoordinatesFromProps(cordProps, entityVo, fullyQualifiedName);
+				if(!set)
+				{
+					entityVo.setX(coordinates.getX());
+					entityVo.setY(coordinates.getY());
+				}
+				}
+				catch(Exception e)
+				{
+					throw new ModelException(e);
+				}
+				
+			}
+			else
+			{
+				throw new RuntimeException(" is this valid");
 			}
 			entityVo.setParent(modelVo);
 			List<ColumnGroup> columnGroups = entity.getColumnGroup();
@@ -212,6 +235,28 @@ public class ModelLoader {
 			
 		}
 		return modelVo;
+	}
+
+	private boolean setCoordinatesFromProps(Properties cordProps, EntityVo entityVo, String fullyQualifiedName) {
+		boolean set=false;
+		if(cordProps!=null)
+		{
+			String xyPair = cordProps.getProperty(fullyQualifiedName);
+			if(xyPair!=null)
+			{
+				xyPair=xyPair.trim();
+				String[] arr = xyPair.split(",");
+				if(arr.length==2)
+				{
+					int x=Integer.parseInt(arr[0]);
+					int y=Integer.parseInt(arr[1]);
+					entityVo.setX(x);
+					entityVo.setY(y);
+					set=true;
+				}
+			}
+		}
+		return set;
 	}
 
 }
