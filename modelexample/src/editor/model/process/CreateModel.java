@@ -21,8 +21,8 @@ public class CreateModel {
 public static void main(String[] args) throws JAXBException, FileNotFoundException, SAXException, IOException {
 	File xsdDir = new File("xsd");
 	
-	File modelXmlFile = new File("xml/sample1.xml");
-	File modelCoordsFile = new File("xml/sample1.properties");
+	File modelXmlFile = new File("xml1/sample1.xml");
+	File modelCoordsFile = new File("xml1/sample1.properties");
 	Properties props= null;
 	if(modelCoordsFile!=null)
 	{

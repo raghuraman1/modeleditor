@@ -3,12 +3,12 @@ package editor.model.join;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 
-import editor.model.EntityVo;
+import editor.model.BaseEntityVo;
 
 public abstract class BaseJoinVo implements Serializable{
 	protected int howMany;//-1 means many, 1 and -1 will be usual//only to show in diagram as is-1 will be shown as * or n
-	protected EntityVo parent;
-	protected EntityVo targetEntity;
+	protected BaseEntityVo parent;
+	protected BaseEntityVo targetEntity;
 	protected LineType lineType=LineType.Solid;//default to solid
 	protected ArrowHead arrowHead=ArrowHead.Empty;//default
 
@@ -25,16 +25,16 @@ public abstract class BaseJoinVo implements Serializable{
 	public void setHowMany(int howMany) {
 		this.howMany = howMany;
 	}
-	public EntityVo getParent() {
+	public BaseEntityVo getParent() {
 		return parent;
 	}
-	public void setParent(EntityVo parent) {
+	public void setParent(BaseEntityVo parent) {
 		this.parent = parent;
 	}
-	public EntityVo getTargetEntity() {
+	public BaseEntityVo getTargetEntity() {
 		return targetEntity;
 	}
-	public void setTargetEntity(EntityVo targetEntity) {
+	public void setTargetEntity(BaseEntityVo targetEntity) {
 		this.targetEntity = targetEntity;
 	}
 	public LineType getLineType() {

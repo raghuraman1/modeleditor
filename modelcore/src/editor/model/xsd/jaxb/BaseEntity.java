@@ -13,23 +13,26 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for Column complex type.
+ * <p>Java class for BaseEntity complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="Column">
+ * &lt;complexType name="BaseEntity">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="Coordinates" type="{http://www.diagrams.editor.org/schema}Coordinates" minOccurs="0"/>
  *         &lt;element name="icon" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="join" type="{http://www.diagrams.editor.org/schema}BaseJoin" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="type" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="fullyQualifiedName" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="visibility" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -39,18 +42,49 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Column", propOrder = {
-    "icon"
+@XmlType(name = "BaseEntity", propOrder = {
+    "coordinates",
+    "icon",
+    "join"
 })
-public class Column {
+@XmlSeeAlso({
+    Entity.class,
+    EmptyEntity.class
+})
+public class BaseEntity {
 
+    @XmlElement(name = "Coordinates")
+    protected Coordinates coordinates;
     protected List<String> icon;
-    @XmlAttribute(name = "name", required = true)
-    protected String name;
-    @XmlAttribute(name = "type")
-    protected String type;
+    protected List<BaseJoin> join;
+    @XmlAttribute(name = "fullyQualifiedName", required = true)
+    protected String fullyQualifiedName;
     @XmlAttribute(name = "visibility")
     protected String visibility;
+
+    /**
+     * Gets the value of the coordinates property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Coordinates }
+     *     
+     */
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
+
+    /**
+     * Sets the value of the coordinates property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Coordinates }
+     *     
+     */
+    public void setCoordinates(Coordinates value) {
+        this.coordinates = value;
+    }
 
     /**
      * Gets the value of the icon property.
@@ -82,51 +116,56 @@ public class Column {
     }
 
     /**
-     * Gets the value of the name property.
+     * Gets the value of the join property.
+     * 
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the join property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getJoin().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link BaseJoin }
+     * 
+     * 
+     */
+    public List<BaseJoin> getJoin() {
+        if (join == null) {
+            join = new ArrayList<BaseJoin>();
+        }
+        return this.join;
+    }
+
+    /**
+     * Gets the value of the fullyQualifiedName property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getName() {
-        return name;
+    public String getFullyQualifiedName() {
+        return fullyQualifiedName;
     }
 
     /**
-     * Sets the value of the name property.
+     * Sets the value of the fullyQualifiedName property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setName(String value) {
-        this.name = value;
-    }
-
-    /**
-     * Gets the value of the type property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
-     * Sets the value of the type property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setType(String value) {
-        this.type = value;
+    public void setFullyQualifiedName(String value) {
+        this.fullyQualifiedName = value;
     }
 
     /**

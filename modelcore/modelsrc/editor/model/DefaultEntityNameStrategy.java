@@ -3,7 +3,7 @@ package editor.model;
 public class DefaultEntityNameStrategy implements EntityNameStrategy {
 
 	@Override
-	public String getEntityLabell(EntityVo entity) {
+	public String getEntityLabell(BaseEntityVo entity) {
 		String fqn=entity.getFullyQualifiedName();
 		String use=fqn;
 		int lastIndex=fqn.lastIndexOf(".");

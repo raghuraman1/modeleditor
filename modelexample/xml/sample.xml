@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://www.diagrams.editor.org/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.diagrams.editor.org/schema ../xsd/schema.xsd ">
-  <entity fullyQualifiedName="Entity1" >
+  <entity fullyQualifiedName="Entity1"  xsi:type="Entity">
     <Coordinates x="20" y="20"/>
     <icon>icon</icon>
+     <join joinName="join1" parentEntitisColumn="abc" xsi:type="ColumnTitleJoin" targetEntityFqn="package1/pacake2/Entity2"/>
+    
+    
+    
     <ColumnGroup name="@entityBase">
       <Column name="abc" />
        <Column name="def" />
     </ColumnGroup>
-   <join joinName="join1" parentEntitisColumn="abc" xsi:type="ColumnTitleJoin" targetEntityFqn="package1/pacake2/Entity2"/>
+  
   </entity>
-  <entity fullyQualifiedName="package1/pacake2/Entity2" >
-    <Coordinates x="200" y="30"/>
+   <entity fullyQualifiedName="Entity3"  xsi:type="EmptyEntity">
+    <Coordinates x="200" y="20"/>
+    <icon>icon</icon>
+     <join joinName="join1"  xsi:type="NonColumnarJoin" targetEntityFqn="package1/pacake2/Entity2"/>
+    
+    
+    
+   
+  
+  </entity>
+  <entity fullyQualifiedName="package1/pacake2/Entity2" xsi:type="Entity" >
+    <Coordinates x="500" y="30"/>
     <icon>icon</icon>
     <ColumnGroup name="group1">
       <Column name="group1:abc" />

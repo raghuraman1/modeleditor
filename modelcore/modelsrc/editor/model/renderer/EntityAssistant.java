@@ -3,43 +3,53 @@ package editor.model.renderer;
 import editor.model.ColumnGroupVo;
 import editor.model.ColumnVo;
 import editor.model.EntityVo;
+import editor.model.BaseEntityVo;
 
 public class EntityAssistant {
 	static final int  fontSize=Values.instance.getFontSize();
 	static final int  margin=Values.instance.getMargin();
-	Rectangle getRectangleEstimate(EntityVo entityVo)
+	Rectangle getRectangleEstimate(BaseEntityVo entityVo1)
 	{
 		int width=10;
 		int height=10;
 		
 		
-		WidthHeight widthHeight=calculateWidthHeight(entityVo.getLabel().length());
+		WidthHeight widthHeight=calculateWidthHeight(entityVo1.getLabel().length());
 		width=Math.max(width, widthHeight.getWidth());
 		height=Math.max(height, widthHeight.getHeight());
 		height+=margin*5;
-		ColumnGroupVo[] columnGroups = entityVo.getColumnGroups();
-		for (ColumnGroupVo columnGroupVo : columnGroups) 
+		if(entityVo1 instanceof EntityVo)
 		{
-			if(columnGroups.length>1)
-			 {
-				 height++;//to draw the group line
-			 }
-			height++;
-			ColumnVo[] columns = columnGroupVo.getColumns();
-			for (ColumnVo columnVo : columns) 
+			EntityVo entityVo=(EntityVo) entityVo1;
+			ColumnGroupVo[] columnGroups = entityVo.getColumnGroups();
+			for (ColumnGroupVo columnGroupVo : columnGroups) 
 			{
-				
-				widthHeight=calculateWidthHeight(columnVo.getName().length());
-				width=Math.max(width, widthHeight.getWidth());
-				height+=widthHeight.getHeight();
-				height+=margin*2;
+				if(columnGroups.length>1)
+				 {
+					 height++;//to draw the group line
+				 }
 				height++;
+				ColumnVo[] columns = columnGroupVo.getColumns();
+				for (ColumnVo columnVo : columns) 
+				{
+					
+					widthHeight=calculateWidthHeight(columnVo.getName().length());
+					width=Math.max(width, widthHeight.getWidth());
+					height+=widthHeight.getHeight();
+					height+=margin*2;
+					height++;
+				}
 			}
 		}
+		else
+		{
+			 height=(height*2)-margin*2;
+		}
+		
 		 width+=margin*3;
 		Rectangle rectangle= new Rectangle();
-		rectangle.setX(entityVo.getX());
-		rectangle.setY(entityVo.getY());
+		rectangle.setX(entityVo1.getX());
+		rectangle.setY(entityVo1.getY());
 		rectangle.setWidth(width);
 		rectangle.setHeight(height);
 		return rectangle;

@@ -5,21 +5,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ModelVo implements Serializable {
-	private Map<String, EntityVo> entitiesMap;
-	private EntityVo[] entities;
-	public EntityVo[] getEntities() {
+	private Map<String, BaseEntityVo> entitiesMap;
+	private BaseEntityVo[] entities;
+	public BaseEntityVo[] getEntities() {
 		return entities;
 	}
-	public EntityVo getEntity(String entityFqn)
+	public BaseEntityVo getEntity(String entityFqn)
 	{
 		return this.entitiesMap.get(entityFqn);
 	}
 	
-	public void setEntities(EntityVo[] entities) {
+	public void setEntities(BaseEntityVo[] entities) {
 		this.entities = entities;
 		
-		this.entitiesMap=new HashMap<String, EntityVo>();
-		for (EntityVo entityVo : this.entities) {
+		this.entitiesMap=new HashMap<String, BaseEntityVo>();
+		for (BaseEntityVo entityVo : this.entities) {
 			entitiesMap.put(entityVo.getFullyQualifiedName(), entityVo);
 		}
 	}

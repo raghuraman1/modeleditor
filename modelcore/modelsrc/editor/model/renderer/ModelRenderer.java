@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import editor.model.ColumnGroupVo;
 import editor.model.ColumnVo;
 import editor.model.EntityVo;
+import editor.model.BaseEntityVo;
 import editor.model.ModelException;
 import editor.model.ModelVo;
 import editor.model.join.BaseJoinVo;
@@ -42,9 +43,9 @@ public class ModelRenderer {
 	{
 		int imageWidth=10;
 		int imageHeight=10;
-		EntityVo[] entities = modelVo.getEntities();
+		BaseEntityVo[] entities = modelVo.getEntities();
 		
-		for (EntityVo entityVo : entities) 
+		for (BaseEntityVo entityVo : entities) 
 		{
 			Rectangle rectangle = entityAssistant.getRectangleEstimate(entityVo);
 			imageWidth=Math.max(imageWidth, rectangle.getX1());
@@ -60,7 +61,7 @@ public class ModelRenderer {
 	      boldFont = new Font("TimesRoman", Font.BOLD, fontSize);
 	      plainFont = new Font("TimesRoman", Font.PLAIN, fontSize);
 	    
-	      for (EntityVo entityVo : entities) 
+	      for (BaseEntityVo entityVo : entities) 
 			{
 	    	  renderEntity(entityVo);
 			}
@@ -69,65 +70,83 @@ public class ModelRenderer {
 		
 	}
 	
-	public void renderEntity(EntityVo entityVo)
+	public void renderEntity(BaseEntityVo entityVo1)
 	{
 		int width=10;
 		int height=10;
-		Rectangle rectangleEstimate = entityAssistant.getRectangleEstimate(entityVo);
+		Rectangle rectangleEstimate = entityAssistant.getRectangleEstimate(entityVo1);
 		 graphics.setColor(Color.BLACK);
-		 WidthHeight widthHeight = getActualWidthHeight(entityVo.getLabel(), boldFont);
+		 WidthHeight widthHeight = getActualWidthHeight(entityVo1.getLabel(), boldFont);
 		 width=Math.max(width, widthHeight.getWidth());
 		 height=Math.max(height, widthHeight.getHeight());
 		 height+=margin*5;
-		 ColumnGroupVo[] columnGroups = entityVo.getColumnGroups();
-		 for (ColumnGroupVo columnGroupVo : columnGroups) 
-		 {
-			 if(columnGroups.length>1)
+		 
+		if(entityVo1 instanceof EntityVo)
+		{
+			EntityVo entityVo=(EntityVo) entityVo1;
+			ColumnGroupVo[] columnGroups = entityVo.getColumnGroups();
+			 for (ColumnGroupVo columnGroupVo : columnGroups) 
 			 {
-				 height++;//to draw the group line
+				 if(columnGroups.length>1)
+				 {
+					 height++;//to draw the group line
+				 }
+				 ColumnVo[] columns = columnGroupVo.getColumns();
+				 for (ColumnVo columnVo : columns) 
+				 {
+					 widthHeight = getActualWidthHeight(columnVo.getName(), plainFont);
+					 width=Math.max(width, widthHeight.getWidth());
+					 height+=widthHeight.getHeight();
+					 height+=margin*2;
+				 }
 			 }
-			 ColumnVo[] columns = columnGroupVo.getColumns();
-			 for (ColumnVo columnVo : columns) 
-			 {
-				 widthHeight = getActualWidthHeight(columnVo.getName(), plainFont);
-				 width=Math.max(width, widthHeight.getWidth());
-				 height+=widthHeight.getHeight();
-				 height+=margin*2;
-			 }
-		 }
+		}
+		else
+		{
+			 height=(height*2)-margin*2;
+			
+		}
+		 
 		 width+=margin*6;
 		// graphics.setColor(Color.BLUE);
 		 
-		 graphics.drawRect(entityVo.getX(), entityVo.getY(), width, height);
+		 graphics.drawRect(entityVo1.getX(), entityVo1.getY(), width, height);
 		
 		 
-		 widthHeight = getActualWidthHeight(entityVo.getLabel(), boldFont);
+		 widthHeight = getActualWidthHeight(entityVo1.getLabel(), boldFont);
 		 graphics.setColor(Color.GRAY);
-		 graphics.fillRect(entityVo.getX()+1, entityVo.getY()+1, /*widthHeight.getWidth()+margin*3*/ width-1, widthHeight.getHeight()+margin*5-1);
+		 graphics.fillRect(entityVo1.getX()+1, entityVo1.getY()+1, /*widthHeight.getWidth()+margin*3*/ width-1, widthHeight.getHeight()+margin*5-1);
 		 graphics.setColor(Color.BLACK);
 		 //for now will use actual width later will replace with fullwidth
-		 graphics.drawRect(entityVo.getX(), entityVo.getY(), /*widthHeight.getWidth()+margin*3*/ width, widthHeight.getHeight()+margin*5);
-		 int y=entityVo.getY()+widthHeight.getHeight()+margin*5;
-		 graphics.drawString(entityVo.getLabel(),entityVo.getX()+margin*3, entityVo.getY()+widthHeight.getHeight());
-		 for (ColumnGroupVo columnGroupVo : columnGroups) 
-		 {
-			 if(columnGroups.length>1)
+		 graphics.drawRect(entityVo1.getX(), entityVo1.getY(), /*widthHeight.getWidth()+margin*3*/ width, widthHeight.getHeight()+margin*5);
+		 int y=entityVo1.getY()+widthHeight.getHeight()+margin*5;
+		 graphics.drawString(entityVo1.getLabel(),entityVo1.getX()+margin*3, entityVo1.getY()+widthHeight.getHeight());
+		if(entityVo1 instanceof EntityVo)
+		{
+			EntityVo entityVo=(EntityVo) entityVo1;
+			ColumnGroupVo[] columnGroups = entityVo.getColumnGroups();
+			for (ColumnGroupVo columnGroupVo : columnGroups) 
 			 {
+				
+				 if(columnGroups.length>1)
+				 {
+					 y++;
+					 graphics.drawLine(entityVo.getX(), y, entityVo.getX()+width, y);
+				 }
 				 y++;
-				 graphics.drawLine(entityVo.getX(), y, entityVo.getX()+width, y);
+				 ColumnVo[] columns = columnGroupVo.getColumns();
+				 for (ColumnVo columnVo : columns) 
+				 {
+					 
+					 widthHeight = getActualWidthHeight(columnVo.getName(), plainFont);
+					 graphics.drawString(columnVo.getName(),entityVo.getX()+margin*3, y+widthHeight.getHeight()-margin*2);
+					 y+=widthHeight.getHeight()+margin*2;
+				 }
 			 }
-			 y++;
-			 ColumnVo[] columns = columnGroupVo.getColumns();
-			 for (ColumnVo columnVo : columns) 
-			 {
-				 
-				 widthHeight = getActualWidthHeight(columnVo.getName(), plainFont);
-				 graphics.drawString(columnVo.getName(),entityVo.getX()+margin*3, y+widthHeight.getHeight()-margin*2);
-				 y+=widthHeight.getHeight()+margin*2;
-			 }
-		 }
+		}
 		 
-		 BaseJoinVo[] joins = entityVo.getJoins();
+		 
+		 BaseJoinVo[] joins = entityVo1.getJoins();
 		 for (BaseJoinVo baseJoinVo : joins) 
 		 {
 			 //we will draw the join lines fromhere later

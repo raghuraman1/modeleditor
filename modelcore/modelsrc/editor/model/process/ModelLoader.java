@@ -21,7 +21,9 @@ import org.xml.sax.SAXException;
 
 import editor.model.ColumnGroupVo;
 import editor.model.ColumnVo;
+import editor.model.EmptyEntityVo;
 import editor.model.EntityVo;
+import editor.model.BaseEntityVo;
 import editor.model.ModelException;
 import editor.model.ModelVo;
 import editor.model.join.ArrowHead;
@@ -30,17 +32,21 @@ import editor.model.join.ColumnColumnJoinVo;
 import editor.model.join.ColumnTitleJoinVo;
 import editor.model.join.GroupGroupJoinVo;
 import editor.model.join.LineType;
+import editor.model.join.NonColumnarJoinVo;
 import editor.model.join.TitleColumnJoinVo;
 import editor.model.renderer.ModelRenderer;
+import editor.model.xsd.jaxb.BaseEntity;
 import editor.model.xsd.jaxb.BaseJoin;
 import editor.model.xsd.jaxb.Column;
 import editor.model.xsd.jaxb.ColumnColumnJoin;
 import editor.model.xsd.jaxb.ColumnGroup;
 import editor.model.xsd.jaxb.ColumnTitleJoin;
 import editor.model.xsd.jaxb.Coordinates;
+import editor.model.xsd.jaxb.EmptyEntity;
 import editor.model.xsd.jaxb.Entity;
 import editor.model.xsd.jaxb.GroupGroupJoin;
 import editor.model.xsd.jaxb.Model;
+import editor.model.xsd.jaxb.NonColumnarJoin;
 import editor.model.xsd.jaxb.TitleColumnJoin;
 
 public class ModelLoader {
@@ -89,32 +95,32 @@ public class ModelLoader {
 		u.setEventHandler(new MyValidationEventHandler());
 		JAXBElement loaded = (JAXBElement) u.unmarshal(fileInputStream);
 		Model model = (Model) loaded.getValue();
-		List<Entity> entities = model.getEntity();
-		EntityVo[] entityVos= new EntityVo[entities.size()];
+		List<BaseEntity> entities = model.getEntity();
+		BaseEntityVo[] entityVos= new BaseEntityVo[entities.size()];
 		ModelVo modelVo= new ModelVo();
 		
 		for (int enttyIndex = 0; enttyIndex < entityVos.length; enttyIndex++) 
 		{
-			Entity entity=entities.get(enttyIndex);
+			BaseEntity entity1=entities.get(enttyIndex);
 		
-			EntityVo entityVo= new EntityVo();
-			entityVos[enttyIndex]=entityVo;
-			String fullyQualifiedName = entity.getFullyQualifiedName();
-			entityVo.setFullyQualifiedName(fullyQualifiedName);
+			BaseEntityVo entityVo1= entity1 instanceof EmptyEntity ? new EmptyEntityVo(): new EntityVo();
+			entityVos[enttyIndex]=entityVo1;
+			String fullyQualifiedName = entity1.getFullyQualifiedName();
+			entityVo1.setFullyQualifiedName(fullyQualifiedName);
 			
-			String[] icons=new String[entity.getIcon().size()];
-			entity.getIcon().toArray(icons);
-			entityVo.setIcons(icons);
-			Coordinates coordinates = entity.getCoordinates();
+			String[] icons=new String[entity1.getIcon().size()];
+			entity1.getIcon().toArray(icons);
+			entityVo1.setIcons(icons);
+			Coordinates coordinates = entity1.getCoordinates();
 			if(coordinates!=null)
 			{
 				try
 				{
-				boolean set=setCoordinatesFromProps(cordProps, entityVo, fullyQualifiedName);
+				boolean set=setCoordinatesFromProps(cordProps, entityVo1, fullyQualifiedName);
 				if(!set)
 				{
-					entityVo.setX(coordinates.getX());
-					entityVo.setY(coordinates.getY());
+					entityVo1.setX(coordinates.getX());
+					entityVo1.setY(coordinates.getY());
 				}
 				}
 				catch(Exception e)
@@ -127,49 +133,60 @@ public class ModelLoader {
 			{
 				throw new RuntimeException(" is this valid");
 			}
-			entityVo.setParent(modelVo);
-			List<ColumnGroup> columnGroups = entity.getColumnGroup();
-			ColumnGroupVo[] columnGroupVos= new ColumnGroupVo[columnGroups.size()];
-			
-			for (int i = 0; i < columnGroupVos.length; i++) 
+			entityVo1.setParent(modelVo);
+			if(entity1 instanceof Entity && entityVo1 instanceof EntityVo)
 			{
-				ColumnGroup columnGroup = columnGroups.get(i);
-				ColumnGroupVo columnGroupVo= new ColumnGroupVo();
-				columnGroupVos[i]=columnGroupVo;
-				columnGroupVo.setName(columnGroup.getName());
-				columnGroupVo.setParent(entityVo);
-				List<Column> columns = columnGroup.getColumn();
-				ColumnVo[] columnVos= new ColumnVo[columns.size()];
+				Entity entity=(Entity) entity1;
+				EntityVo entityVo=(EntityVo) entityVo1;
+				List<ColumnGroup> columnGroups = entity.getColumnGroup();
+				ColumnGroupVo[] columnGroupVos= new ColumnGroupVo[columnGroups.size()];
 				
-				
-				for (int j = 0; j < columnVos.length; j++) 
+				for (int i = 0; i < columnGroupVos.length; i++) 
 				{
-					Column column = columns.get(j);
-					ColumnVo columnVo = new ColumnVo();
-					columnVos[j]= columnVo;
-					columnVo.setName(column.getName());
-					columnVo.setType(column.getType());
-					columnVo.setVisibilty(column.getVisibility());
-					columnVo.setParent(columnGroupVo);
-					String[] columnVoIcons=new String[column.getIcon().size()];
-					column.getIcon().toArray(columnVoIcons);
+					ColumnGroup columnGroup = columnGroups.get(i);
+					ColumnGroupVo columnGroupVo= new ColumnGroupVo();
+					columnGroupVos[i]=columnGroupVo;
+					columnGroupVo.setName(columnGroup.getName());
+					columnGroupVo.setParent(entityVo);
+					List<Column> columns = columnGroup.getColumn();
+					ColumnVo[] columnVos= new ColumnVo[columns.size()];
 					
-					columnVo.setIcons(columnVoIcons);
+					
+					for (int j = 0; j < columnVos.length; j++) 
+					{
+						Column column = columns.get(j);
+						ColumnVo columnVo = new ColumnVo();
+						columnVos[j]= columnVo;
+						columnVo.setName(column.getName());
+						columnVo.setType(column.getType());
+						columnVo.setVisibilty(column.getVisibility());
+						columnVo.setParent(columnGroupVo);
+						String[] columnVoIcons=new String[column.getIcon().size()];
+						column.getIcon().toArray(columnVoIcons);
+						
+						columnVo.setIcons(columnVoIcons);
+					}
+					columnGroupVo.setColumns(columnVos);
 				}
-				columnGroupVo.setColumns(columnVos);
+				entityVo.setColumnGroups(columnGroupVos);
 			}
-			entityVo.setColumnGroups(columnGroupVos);
+			
 			
 			
 			
 	
 		}
 		modelVo.setEntities(entityVos);
-		EntityVo[] entityVos2 = modelVo.getEntities();
+		BaseEntityVo[] entityVos2 = modelVo.getEntities();
 		for (int i = 0; i < entityVos2.length; i++) 
 		{
-			EntityVo entityVo=entityVos2[i];
-			Entity entity = entities.get(i);
+			BaseEntityVo entityVo1=entityVos2[i];
+			EntityVo entityVo=null;
+			if(entityVo1 instanceof EntityVo)
+			{
+				entityVo=(EntityVo) entityVo1;
+			}
+			BaseEntity entity = entities.get(i);
 			List<BaseJoin> joins = entity.getJoin();
 			BaseJoinVo[] joinVos= new BaseJoinVo[joins.size()];
 			for (int j = 0; j < joinVos.length; j++) 
@@ -192,10 +209,14 @@ public class ModelLoader {
 				{
 					joinVo=new GroupGroupJoinVo();	
 				}
+				else if(join instanceof NonColumnarJoin)
+				{
+					joinVo=new NonColumnarJoinVo();	
+				}
 				if(joinVo!=null)
 				{
 					joinVo.setHowMany(join.getHowMany());
-					joinVo.setParent(entityVo);
+					joinVo.setParent(entityVo1);
 					joinVo.setTargetEntity(modelVo.getEntity(join.getTargetEntityFqn()));
 					joinVo.setLineType(LineType.valueOf(join.getLineType()));
 					joinVo.setArrowHead(ArrowHead.valueOf(join.getArrowHead()));
@@ -205,7 +226,8 @@ public class ModelLoader {
 						ColumnColumnJoin actualJoin=(ColumnColumnJoin) join;
 						ColumnColumnJoinVo actualJoinVo=(ColumnColumnJoinVo) joinVo;
 						actualJoinVo.setParentEntitisColumn(entityVo.getColumnVo(actualJoin.getParentEntitisColumn()));
-						actualJoinVo.setTargetEntitisColumn(actualJoinVo.getTargetEntity().getColumnVo(actualJoin.getTargetEntitisColumn()));
+						EntityVo targetEntity = (EntityVo) actualJoinVo.getTargetEntity();
+						actualJoinVo.setTargetEntitisColumn(targetEntity.getColumnVo(actualJoin.getTargetEntitisColumn()));
 					}	
 					else if(join instanceof ColumnTitleJoin)
 					{
@@ -217,19 +239,27 @@ public class ModelLoader {
 					{
 						TitleColumnJoin actualJoin=(TitleColumnJoin) join;
 						TitleColumnJoinVo actualJoinVo=(TitleColumnJoinVo) joinVo;
-						actualJoinVo.setTargetEntitisColumn(actualJoinVo.getTargetEntity().getColumnVo(actualJoin.getTargetEntitisColumn()));
+						EntityVo targetEntity = (EntityVo) actualJoinVo.getTargetEntity();
+						actualJoinVo.setTargetEntitisColumn(targetEntity.getColumnVo(actualJoin.getTargetEntitisColumn()));
 					}
 					else if(join instanceof GroupGroupJoin)
 					{
 						GroupGroupJoin actualJoin=(GroupGroupJoin) join;
 						GroupGroupJoinVo actualJoinVo=(GroupGroupJoinVo) joinVo;
 						actualJoinVo.setParentEntitisColumnGroup(entityVo.getColumnGroupVo(((GroupGroupJoin) join).getParentEntitisColumnGroup()));
-						actualJoinVo.setTargetEntitisColumnGroup(actualJoinVo.getTargetEntity().getColumnGroupVo(((GroupGroupJoin) join).getTargetEntitisColumnGroup()));
+						EntityVo targetEntity = (EntityVo) actualJoinVo.getTargetEntity();
+						actualJoinVo.setTargetEntitisColumnGroup(targetEntity.getColumnGroupVo(((GroupGroupJoin) join).getTargetEntitisColumnGroup()));
+					}
+					else if(join instanceof NonColumnarJoin)
+					{
+						//do nothing
 					}
 				}
 				
 			}
-			entityVo.setJoins(joinVos);
+			
+				
+			entityVo1.setJoins(joinVos);
 			
 			
 			
@@ -237,7 +267,7 @@ public class ModelLoader {
 		return modelVo;
 	}
 
-	private boolean setCoordinatesFromProps(Properties cordProps, EntityVo entityVo, String fullyQualifiedName) {
+	private boolean setCoordinatesFromProps(Properties cordProps, BaseEntityVo entityVo, String fullyQualifiedName) {
 		boolean set=false;
 		if(cordProps!=null)
 		{
